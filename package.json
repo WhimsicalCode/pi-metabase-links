@@ -1,0 +1,53 @@
+{
+  "name": "pi-metabase-links",
+  "version": "0.1.0",
+  "description": "Generate prefilled Metabase native-SQL question links in Pi.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "metabase",
+    "sql",
+    "links"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "files": [
+    "extensions",
+    "src",
+    "skills",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "npm run format:check && npm run typecheck && npm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.84.4",
+    "@earendil-works/pi-coding-agent": "^0.84.4",
+    "@types/node": "^24.0.0",
+    "prettier": "^3.6.2",
+    "typebox": "^1.3.7",
+    "typescript": "^5.9.2"
+  }
+}
