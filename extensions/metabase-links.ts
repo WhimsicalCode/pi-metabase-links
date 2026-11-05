@@ -24,7 +24,7 @@ export default function metabaseLinksExtension(pi: ExtensionAPI): void {
     promptGuidelines: [
       "Use create_metabase_link instead of Python, bash, or a manual URL encoder when the user asks for a Metabase link.",
       "Do not pass create_metabase_link output to create_short_link; create_metabase_link performs optional shortening in-process.",
-      "Omit create_metabase_link shorten for normal requests, set it to true for explicitly short or readable links, and set it to false for raw or teammate-openable links.",
+      "Omit create_metabase_link shorten for normal requests, set it to true for explicitly short or readable links, and set it to false for raw links. If the result is a local-only short link and the user needs a link teammates can open, call it again with shorten false.",
     ],
     parameters: Type.Object({
       sql: Type.String({ description: "Native SQL for the Metabase question" }),
@@ -32,7 +32,7 @@ export default function metabaseLinksExtension(pi: ExtensionAPI): void {
         Type.String({ description: "Optional short-link title" }),
       ),
       shorten: Type.Optional(
-        Type.Boolean({ description: "Whether to request a local short link" }),
+        Type.Boolean({ description: "Whether to request a short link" }),
       ),
     }),
     async execute(_toolCallId, params, signal) {
@@ -52,18 +52,25 @@ export default function metabaseLinksExtension(pi: ExtensionAPI): void {
             signal,
           );
           if (attempt.claimed) {
-            const { shortUrl, warnings: shortLinkWarnings } = attempt.result;
+            const {
+              shortUrl,
+              localOnly,
+              warnings: shortLinkWarnings,
+            } = attempt.result;
+            const localNote = localOnly
+              ? "\nWorks only on this machine while Pi's short-links server is running."
+              : "";
             return {
               content: [
                 {
                   type: "text" as const,
-                  text: `Metabase link: ${shortUrl}\nWorks only on this machine while Pi's short-links server is running.`,
+                  text: `Metabase link: ${shortUrl}${localNote}`,
                 },
               ],
               details: {
                 url: shortUrl,
                 shortened: true,
-                localOnly: true,
+                localOnly,
                 warnings: shortLinkWarnings,
               },
             };

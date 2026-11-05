@@ -11,7 +11,8 @@ export type ShortLinkCreateInputV1 = {
 
 export type ShortLinkCreateResultV1 = {
   shortUrl: string;
-  localOnly: true;
+  // false when pi-short-links creates links through PI_SHORT_LINKS_COMMAND.
+  localOnly: boolean;
   warnings: string[];
 };
 

@@ -13,7 +13,7 @@ Choose `shorten` based on what the user needs:
 - Use `true` when the user asks for a short, compact, or readable link.
 - Use `false` when the user asks for the raw URL or needs to open the link on another machine.
 
-When the result has `localOnly: true`, tell the user that the URL works only on this machine while Pi's short-links server is running.
+When the result has `localOnly: true`, tell the user that the URL works only on this machine while Pi's short-links server is running. With `localOnly: false`, the short link was created by the user's `PI_SHORT_LINKS_COMMAND`; don't call it local-only.
 
 If configuration is missing, name both required variables: `PI_METABASE_BASE_URL` and `PI_METABASE_DATABASE_ID`. To find the database ID, send the user to `<PI_METABASE_BASE_URL>/admin/databases/`. After they choose a database, its numeric ID appears at the end of the URL, as in `/admin/databases/2`.
 

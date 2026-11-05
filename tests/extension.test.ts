@@ -249,6 +249,56 @@ test("a claimed request returns only the local short URL", async () => {
   }
 });
 
+test("a shareable short link has no local-only note", async () => {
+  const originalBaseUrl = process.env.PI_METABASE_BASE_URL;
+  const originalDatabaseId = process.env.PI_METABASE_DATABASE_ID;
+  process.env.PI_METABASE_BASE_URL = "https://metabase.example.com";
+  process.env.PI_METABASE_DATABASE_ID = "2";
+  let rawUrl: string | undefined;
+
+  try {
+    const tool = captureTool((eventName, data) => {
+      assert.equal(eventName, "pi-short-links:create:v1");
+      const request = data as ShortLinkCreateRequestV1;
+      rawUrl = request.input.url;
+      assert.equal(request.input.title, "Pending invites");
+      assert.equal(request.claim(), true);
+      request.resolve({
+        shortUrl: "https://links.example.com/pending-invites",
+        localOnly: false,
+        warnings: [],
+      });
+    });
+    const result = await tool.execute("test-call", {
+      sql: "select 1;",
+      title: "Pending invites",
+    });
+
+    assert.deepEqual(result, {
+      content: [
+        {
+          type: "text",
+          text: "Metabase link: https://links.example.com/pending-invites",
+        },
+      ],
+      details: {
+        url: "https://links.example.com/pending-invites",
+        shortened: true,
+        localOnly: false,
+        warnings: [],
+      },
+    });
+    assert.ok(rawUrl);
+    assert.equal(JSON.stringify(result).includes(rawUrl), false);
+  } finally {
+    if (originalBaseUrl === undefined) delete process.env.PI_METABASE_BASE_URL;
+    else process.env.PI_METABASE_BASE_URL = originalBaseUrl;
+    if (originalDatabaseId === undefined)
+      delete process.env.PI_METABASE_DATABASE_ID;
+    else process.env.PI_METABASE_DATABASE_ID = originalDatabaseId;
+  }
+});
+
 test("a claimed request failure falls back to the raw URL", async () => {
   const originalBaseUrl = process.env.PI_METABASE_BASE_URL;
   const originalDatabaseId = process.env.PI_METABASE_DATABASE_ID;
